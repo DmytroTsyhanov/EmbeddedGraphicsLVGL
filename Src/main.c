@@ -102,6 +102,30 @@ void SystemClockSetup(void)
         RCC_DCKCFGR1_PLLSAIDIVR_Pos
     );
 
+    /* HPRE = 0000: AHB clock = SYSCLK / 1 = 216 MHz */
+    REG_SET_VAL(
+        pRCC->CFGR,
+        0x00,
+        0x0F,
+        RCC_CFGR_HPRE_Pos
+    );
+
+    /* PPRE1 = 101: APB1 clock = HCLK / 4 = 54 MHz */
+    REG_SET_VAL(
+        pRCC->CFGR,
+        0x05,
+        0x07,
+        RCC_CFGR_PPRE1_Pos
+    );
+
+    /* PPRE2 = 100: APB2 clock = HCLK / 2 = 108 MHz */
+    REG_SET_VAL(
+        pRCC->CFGR,
+        0x04,
+        0x07,
+        RCC_CFGR_PPRE2_Pos
+    );
+
     /* Enable the main PLL */
     REG_SET_BIT(pRCC->CR, RCC_CR_PLLON_Pos);
     while (!REG_READ_BIT(pRCC->CR, RCC_CR_PLLRDY_Pos)) {}
@@ -109,4 +133,44 @@ void SystemClockSetup(void)
     /* Enable PLLSAI */
     REG_SET_BIT(pRCC->CR, RCC_CR_PLLSAION_Pos);
     while (!REG_READ_BIT(pRCC->CR, RCC_CR_PLLSAIRDY_Pos)) {}
+
+    /* Enable the PWR peripheral clock */
+    REG_SET_BIT(pRCC->APB1ENR, RCC_APB1ENR_PWREN_Pos);
+
+    /* Configure Voltage Scale 1 */
+    REG_SET_VAL(
+        PWR->CR1,
+        0x03,
+        0x03,
+        PWR_CR1_VOS_Pos
+    );
+
+    /* Enable Over-drive mode */
+    REG_SET_BIT(PWR->CR1, PWR_CR1_ODEN_Pos);
+    while (!REG_READ_BIT(PWR->CSR1, PWR_CSR1_ODRDY_Pos)) {}
+
+    /* Enable Over-drive switching */
+    REG_SET_BIT(PWR->CR1, PWR_CR1_ODSWEN_Pos);
+    while (!REG_READ_BIT(PWR->CSR1, PWR_CSR1_ODSWRDY_Pos)) {}
+
+    /* Configure Flash latency for 216 MHz */
+    REG_SET_VAL(
+        FLASH->ACR,
+        7,
+        0x0F,
+        FLASH_ACR_LATENCY_Pos
+    );
+
+    while (((FLASH->ACR >> FLASH_ACR_LATENCY_Pos) & 0x0FU) != 7U) {}
+
+    /* Select PLL as the system clock source */
+    REG_SET_VAL(
+        pRCC->CFGR,
+        0x02,
+        0x03,
+        RCC_CFGR_SW_Pos
+    );
+
+    /* Wait until PLL is used as the system clock source */
+    while (((pRCC->CFGR >> RCC_CFGR_SWS_Pos) & 0x03U) != 0x02U) {}
 }
