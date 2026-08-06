@@ -25,12 +25,14 @@
 #endif
 
 void SystemClockSetup (void);
+void MCO1_Init        (void);
 
 
 int main(void)
 {
 	SystemClockSetup();
     /* Loop forever */
+	//MCO1_Init();
 	for(;;);
 }
 
@@ -163,6 +165,18 @@ void SystemClockSetup(void)
 
     while (((FLASH->ACR >> FLASH_ACR_LATENCY_Pos) & 0x0FU) != 7U) {}
 
+    /* Enable Flash prefetch */
+    REG_SET_BIT(
+        FLASH->ACR,
+        FLASH_ACR_PRFTEN_Pos
+    );
+
+    /* Enable ART accelerator */
+    REG_SET_BIT(
+        FLASH->ACR,
+        FLASH_ACR_ARTEN_Pos
+    );
+
     /* Select PLL as the system clock source */
     REG_SET_VAL(
         pRCC->CFGR,
@@ -174,3 +188,92 @@ void SystemClockSetup(void)
     /* Wait until PLL is used as the system clock source */
     while (((pRCC->CFGR >> RCC_CFGR_SWS_Pos) & 0x03U) != 0x02U) {}
 }
+
+void MCO1_Init(void)
+{
+    RCC_TypeDef  *pRCC   = RCC;
+    GPIO_TypeDef *pGPIOA = GPIOA;
+
+    /* Enable GPIOA peripheral clock */
+    REG_SET_BIT(
+        pRCC->AHB1ENR,
+        RCC_AHB1ENR_GPIOAEN_Pos
+    );
+
+    (void)pRCC->AHB1ENR;
+
+    /*
+     * Configure PA8 as Alternate Function mode.
+     * MODER8 = 10
+     */
+    REG_SET_VAL(
+        pGPIOA->MODER,
+        0x02U,
+        0x03U,
+        GPIO_MODER_MODER8_Pos
+    );
+
+    /* Configure PA8 as push-pull */
+    REG_CLR_BIT(
+        pGPIOA->OTYPER,
+        GPIO_OTYPER_OT8_Pos
+    );
+
+    /* Configure PA8 for very high output speed */
+    REG_SET_VAL(
+        pGPIOA->OSPEEDR,
+        0x03U,
+        0x03U,
+        GPIO_OSPEEDR_OSPEEDR8_Pos
+    );
+
+    /* Disable pull-up and pull-down */
+    REG_SET_VAL(
+        pGPIOA->PUPDR,
+        0x00U,
+        0x03U,
+        GPIO_PUPDR_PUPDR8_Pos
+    );
+
+    /*
+     * Select AF0 for  .
+     * PA8 is located in AFR[1], bits [3:0].
+     * AF0 on PA8 is MCO1.
+     */
+    REG_SET_VAL(
+        pGPIOA->AFR[1],
+        0x00U,
+        0x0FU,
+        0U
+    );
+
+    /*
+     * Select PLL clock as MCO1 source.
+     *
+     * MCO1[1:0]:
+     * 00 - HSI
+     * 01 - LSE
+     * 10 - HSE
+     * 11 - PLL
+     */
+    REG_SET_VAL(
+        pRCC->CFGR,
+        0x03U,
+        0x03U,
+        RCC_CFGR_MCO1_Pos
+    );
+
+    /*
+     * MCO1PRE = 110: divide by 4.
+     *
+     * PLL clock = SYSCLK = 216 MHz
+     * MCO1 = 216 MHz / 4 = 54 MHz
+     */
+    REG_SET_VAL(
+        pRCC->CFGR,
+        0x06U,
+        0x07U,
+        RCC_CFGR_MCO1PRE_Pos
+    );
+}
+
