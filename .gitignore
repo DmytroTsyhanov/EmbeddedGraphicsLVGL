@@ -1,0 +1,42 @@
+# STM32CubeIDE workspace
+.metadata/
+.remote/
+*.launch
+
+# Build output
+Debug/
+Release/
+build/
+cmake-build-*/
+
+# Compiled files
+*.o
+*.d
+*.elf
+*.hex
+*.bin
+*.map
+*.list
+*.lst
+*.cyclo
+*.su
+
+# Indexer and debug artifacts
+*.sym
+*.axf
+*.bak
+*.tmp
+*.log
+
+# OS files
+.DS_Store
+Thumbs.db
+desktop.ini
+
+# Editor files
+*.swp
+*.swo
+*~
+
+# Optional: generated reports
+report.html
