@@ -18,19 +18,22 @@
 #include <stdint.h>
 #include "stm32f746xx.h"
 #include "reg_util.h"
+#include "bsp_lcd.h"
 
 
 #if !defined(__SOFT_FP__) && defined(__ARM_FP)
   #warning "FPU is not initialized, but the project is compiling for an FPU. Please initialize the FPU before use."
 #endif
 
-void SystemClockSetup (void);
-void MCO1_Init        (void);
+       void SystemClockSetup (void);
+       void MCO1_Init        (void);
+static void ltdcPinInit      (void);
 
 
 int main(void)
 {
 	SystemClockSetup();
+	ltdcPinInit();
     /* Loop forever */
 	//MCO1_Init();
 	for(;;);
@@ -275,5 +278,13 @@ void MCO1_Init(void)
         0x07U,
         RCC_CFGR_MCO1PRE_Pos
     );
+}
+
+
+static void ltdcPinInit(void)
+{
+	for (uint8_t idx = 0; idx < totalLtdcPins; idx++) {
+		//REG_SET_VAL(ltdcIoPorts[idx]->MODER
+	}
 }
 

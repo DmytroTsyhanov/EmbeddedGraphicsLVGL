@@ -1,7 +1,7 @@
 #include "bsp_lcd.h"
 
 
-const GPIO_TypeDef *ltdcIoPorts[] = {
+GPIO_TypeDef * const ltdcIoPorts[] = {
 		LCD_DATA_R0_PORT,
 		LCD_DATA_R1_PORT,
 		LCD_DATA_R2_PORT,
@@ -69,6 +69,11 @@ const uint8_t ltdcPins[] = {
 		LCD_VSYNC_PIN,
 		LCD_DE_PIN
 };
+
+
+#define LCD_TOTAL_PINS (sizeof(ltdcPins) / sizeof(*ltdcPins))
+const uint8_t totalLtdcPins = LCD_TOTAL_PINS;
+
 
 /**
  * @brief  None

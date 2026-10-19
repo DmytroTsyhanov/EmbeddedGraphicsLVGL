@@ -96,7 +96,7 @@
 /****************************************************************************
 ** Public GPIO mapping                                                     **
 *****************************************************************************/
-extern const GPIO_TypeDef *ltdcIoPorts[];
+extern GPIO_TypeDef * const ltdcIoPorts[];
 extern const uint8_t ltdcPins[];
 
 
