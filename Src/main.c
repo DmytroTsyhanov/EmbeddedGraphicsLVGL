@@ -283,8 +283,82 @@ void MCO1_Init(void)
 
 static void ltdcPinInit(void)
 {
-	for (uint8_t idx = 0; idx < totalLtdcPins; idx++) {
-		//REG_SET_VAL(ltdcIoPorts[idx]->MODER
-	}
-}
+    /* Enable GPIOE, GPIOG, GPIOI, GPIOJ and GPIOK clocks */
+    RCC->AHB1ENR |= (1U << 4U)  |
+                    (1U << 6U)  |
+                    (1U << 8U)  |
+                    (1U << 9U)  |
+                    (1U << 10U);
 
+    /* Read back after enabling clocks */
+    (void)RCC->AHB1ENR;
+
+    uint32_t pos;
+    uint32_t pin;
+
+    for (uint8_t idx = 0U; idx < totalLtdcPins; idx++)
+    {
+    	 GPIO_TypeDef *port = ltdcIoPorts[idx];
+    	    pin = ltdcPins[idx];
+    	    pos = pin * 2U;
+
+    	    uint32_t afrPos = (pin % 8U) * 4U;
+
+    	    /* Select AF14 */
+    	    if (pin < 8U) {
+    	        REG_SET_VAL(port->AFR[0], 0x0EU, 0x0FU, afrPos);
+    	    } else {
+    	        REG_SET_VAL(port->AFR[1], 0x0EU, 0x0FU, afrPos);
+    	    }
+
+    	    /* Push-pull */
+    	    REG_SET_VAL(port->OTYPER, 0x00U, 0x01U, pin);
+
+    	    /* Very high speed */
+    	    REG_SET_VAL(port->OSPEEDR, 0x03U, 0x03U, pos);
+
+    	    /* No pull-up / pull-down */
+    	    REG_SET_VAL(port->PUPDR, 0x00U, 0x03U, pos);
+
+    	    /* Enable alternate function mode */
+    	    REG_SET_VAL(port->MODER, 0x02U, 0x03U, pos);
+    }
+
+
+    pos = LCD_DISP_PIN * 2U;
+    pin = LCD_DISP_PIN;
+
+    /* Push-pull output */
+    REG_SET_VAL(LCD_DISP_PORT->OTYPER, 0x00U, 0x01U, pin);
+
+    /* Low speed: 00 */
+    REG_SET_VAL(LCD_DISP_PORT->OSPEEDR, 0x00U, 0x03U, pos);
+
+    /* No pull-up / pull-down */
+    REG_SET_VAL(LCD_DISP_PORT->PUPDR, 0x00U, 0x03U, pos);
+
+    /* Initial output level: low */
+    LCD_DISP_PORT->BSRR = (1U << (pin + 16U));
+
+    /* General purpose output mode: 01 */
+    REG_SET_VAL(LCD_DISP_PORT->MODER, 0x01U, 0x03U, pos);
+
+
+    pos = LCD_BL_CTRL_PIN * 2U;
+    pin = LCD_BL_CTRL_PIN;
+
+    /* Push-pull output */
+    REG_SET_VAL(LCD_BL_CTRL_PORT->OTYPER, 0x00U, 0x01U, pin);
+
+    /* Low speed: 00 */
+    REG_SET_VAL(LCD_BL_CTRL_PORT->OSPEEDR, 0x00U, 0x03U, pos);
+
+    /* No pull-up / pull-down */
+    REG_SET_VAL(LCD_BL_CTRL_PORT->PUPDR, 0x00U, 0x03U, pos);
+
+    /* Initial output level: low */
+    LCD_BL_CTRL_PORT->BSRR = (1U << (LCD_BL_CTRL_PIN + 16U));
+
+    /* General purpose output mode: 01 */
+    REG_SET_VAL(LCD_BL_CTRL_PORT->MODER, 0x01U, 0x03U, pos);
+}
