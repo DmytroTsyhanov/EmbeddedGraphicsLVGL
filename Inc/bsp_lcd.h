@@ -92,7 +92,16 @@
 #define LCD_DISP_PORT    GPIOI
 #define LCD_BL_CTRL_PORT GPIOK
 
+#define BSP_HSW 1
+#define BSP_HBP 43
+#define BSP_HFP 8
 
+#define BSP_VSW 10
+#define BSP_VBP 12
+#define BSP_VFP 4
+
+#define BSP_ACTIVE_WIDTH  480
+#define BSP_ACTIVE_HEIGHT 272
 /****************************************************************************
 ** Public GPIO mapping                                                     **
 *****************************************************************************/
