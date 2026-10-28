@@ -35,6 +35,12 @@ int main(void)
 {
 	SystemClockSetup();
 	ltdcPinInit();
+	ltdcInit();
+	/* Enable LCD display */
+	LCD_DISP_PORT->BSRR = (1U << LCD_DISP_PIN);
+
+	/* Enable LCD backlight */
+	LCD_BL_CTRL_PORT->BSRR = (1U << LCD_BL_CTRL_PIN);
     /* Loop forever */
 	//MCO1_Init();
 	for(;;);
@@ -373,10 +379,24 @@ static void ltdcInit(void)
 	 REG_SET_BIT(pRCC->APB2ENR, RCC_APB2ENR_LTDCEN_Pos);
 	 (void)pRCC->APB2ENR;
 
-	 REG_SET_VAL(ltdc->SSCR, BSP_HSW - 1U, 0xFFFUL, LTDC_SSCR_HSW_Pos);
 	 REG_SET_VAL(ltdc->SSCR, BSP_VSW - 1U, 0x7FFUL, LTDC_SSCR_VSH_Pos);
+	 REG_SET_VAL(ltdc->SSCR, BSP_HSW - 1U, 0xFFFUL, LTDC_SSCR_HSW_Pos);
 
-	 REG_SET_VAL(ltdc->BPCR, BSP_HBP - 1U, 0xFFFUL, LTDC_BPCR_AHBP_Pos);
-	 REG_SET_VAL(ltdc->BPCR, BSP_VBP - 1U, 0x7FFUL, LTDC_BPCR_AVBP_Pos);
+	 REG_SET_VAL(ltdc->BPCR, BSP_VSW + BSP_VBP - 1U, 0x7FFUL, LTDC_BPCR_AVBP_Pos);
+	 REG_SET_VAL(ltdc->BPCR, BSP_HSW + BSP_HBP - 1U, 0xFFFUL, LTDC_BPCR_AHBP_Pos);
 
+	 REG_SET_VAL(ltdc->AWCR, BSP_VSW + BSP_VBP + BSP_ACTIVE_HEIGHT - 1U, 0x7FFUL, LTDC_AWCR_AAH_Pos);
+	 REG_SET_VAL(ltdc->AWCR, BSP_HSW + BSP_HBP + BSP_ACTIVE_WIDTH - 1U, 0xFFFUL,  LTDC_AWCR_AAW_Pos);
+
+	 REG_SET_VAL(ltdc->TWCR, BSP_VSW + BSP_VBP + BSP_ACTIVE_HEIGHT + BSP_VFP - 1U, 0x7FFUL, LTDC_TWCR_TOTALH_Pos);
+	 REG_SET_VAL(ltdc->TWCR, BSP_HSW + BSP_HBP + BSP_ACTIVE_WIDTH + BSP_HFP - 1U, 0xFFFUL,  LTDC_TWCR_TOTALW_Pos);
+
+	 /* Configure LTDC signal polarities */
+	 REG_CLR_BIT(ltdc->GCR, LTDC_GCR_HSPOL_Pos);
+	 REG_CLR_BIT(ltdc->GCR, LTDC_GCR_VSPOL_Pos);
+	 REG_CLR_BIT(ltdc->GCR, LTDC_GCR_DEPOL_Pos);
+	 REG_SET_BIT(ltdc->GCR, LTDC_GCR_PCPOL_Pos);
+
+	 REG_SET_VAL(ltdc->BCCR, 0xFF, 0xFFUL,  LTDC_BCCR_BCRED_Pos);
+	 REG_SET_BIT(ltdc->GCR, LTDC_GCR_LTDCEN_Pos);
 }
