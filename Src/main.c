@@ -28,6 +28,7 @@
        void SystemClockSetup (void);
        void MCO1_Init        (void);
 static void ltdcPinInit      (void);
+static void ltdcInit         (void);
 
 
 int main(void)
@@ -361,4 +362,21 @@ static void ltdcPinInit(void)
 
     /* General purpose output mode: 01 */
     REG_SET_VAL(LCD_BL_CTRL_PORT->MODER, 0x01U, 0x03U, pos);
+}
+
+
+static void ltdcInit(void)
+{
+	 RCC_TypeDef *pRCC = RCC;
+	 LTDC_TypeDef *ltdc = LTDC;
+
+	 REG_SET_BIT(pRCC->APB2ENR, RCC_APB2ENR_LTDCEN_Pos);
+	 (void)pRCC->APB2ENR;
+
+	 REG_SET_VAL(ltdc->SSCR, BSP_HSW - 1U, 0xFFFUL, LTDC_SSCR_HSW_Pos);
+	 REG_SET_VAL(ltdc->SSCR, BSP_VSW - 1U, 0x7FFUL, LTDC_SSCR_VSH_Pos);
+
+	 REG_SET_VAL(ltdc->BPCR, BSP_HBP - 1U, 0xFFFUL, LTDC_BPCR_AHBP_Pos);
+	 REG_SET_VAL(ltdc->BPCR, BSP_VBP - 1U, 0x7FFUL, LTDC_BPCR_AVBP_Pos);
+
 }

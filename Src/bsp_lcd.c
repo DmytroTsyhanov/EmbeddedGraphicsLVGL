@@ -82,9 +82,6 @@ const uint8_t totalLtdcPins = LCD_TOTAL_PINS;
  */
 void BSP_lcdInit(void)
 {
-	 RCC_TypeDef *pRCC = RCC;
 
-	 REG_SET_BIT(pRCC->APB2ENR, RCC_APB2ENR_LTDCEN_Pos);
-	 (void)pRCC->AHB2ENR;
 }
 
