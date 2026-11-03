@@ -29,6 +29,7 @@
        void MCO1_Init        (void);
 static void ltdcPinInit      (void);
 static void ltdcInit         (void);
+static void ltdcLayerInit    (LTDC_Layer_TypeDef *pLayer);
 
 
 int main(void)
@@ -36,6 +37,7 @@ int main(void)
 	SystemClockSetup();
 	ltdcPinInit();
 	ltdcInit();
+	ltdcLayerInit(LTDC_Layer1);
 	/* Enable LCD display */
 	LCD_DISP_PORT->BSRR = (1U << LCD_DISP_PIN);
 
@@ -399,4 +401,26 @@ static void ltdcInit(void)
 
 	 REG_SET_VAL(ltdc->BCCR, 0xFF, 0xFFUL,  LTDC_BCCR_BCRED_Pos);
 	 REG_SET_BIT(ltdc->GCR, LTDC_GCR_LTDCEN_Pos);
+}
+
+static void ltdcLayerInit(LTDC_Layer_TypeDef *pLayer)
+{
+	LTDC_TypeDef *ltdc = LTDC;
+	//1. configure the pixel format of the layer's framebuffer
+
+	//2. configure the constant alpha and blending factors
+
+	//3. Configure layer position (Windowing)
+	uint32_t ahbp = (ltdc->BPCR >> LTDC_BPCR_AHBP_Pos)  & 0xFFFU;
+	uint32_t whstart = ahbp + 0 + 1;
+
+	//4. Configure Frame buffer address
+
+	//5. Configure the default color of the layer (optional)
+
+	//6 . Configure pitch, line length and line numbers of the frame buffer
+
+	//7. Activate immediate reload
+
+	//8. Enable the layer
 }
