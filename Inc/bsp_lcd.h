@@ -100,8 +100,28 @@
 #define BSP_VBP 12
 #define BSP_VFP 4
 
-#define BSP_ACTIVE_WIDTH  480
-#define BSP_ACTIVE_HEIGHT 272
+#define PROTRAIT  0
+#define LANDSCAPE 1
+#define BSP_LCD_ORIENTATION PROTRAIT
+
+#define BSP_LCD_WIDTH  480
+#define BSP_LCD_HEIGHT 272
+
+#if (BSP_LCD_ORIENTATION == PROTRAIT)
+     #define BSP_LCD_ACTIVE_WIDTH  BSP_LCD_WIDTH
+     #define BSP_LCD_ACTIVE_HEIGHT BSP_LCD_HEIGHT
+#elif (BSP_LCD_ORIENTATION == PROTRAIT)
+     #define BSP_LCD_ACTIVE_WIDTH  BSP_LCD_HEIGHT
+     #define BSP_LCD_ACTIVE_HEIGHT BSP_LCD_WIDTH
+#endif
+
+#define BSP_LCD_PIXEL_FMT_L8     1
+#define BSP_LCD_PIXEL_FMT_RGB565 2
+#define BSP_LCD_PIXEL_FMT_RGB666 3
+#define BSP_LCD_PIXEL_FMT_RGB888 4
+#define BSP_LCD_PIXEL_FMT        BSP_LCD_PIXEL_FMT_RGB888
+
+
 /****************************************************************************
 ** Public GPIO mapping                                                     **
 *****************************************************************************/
