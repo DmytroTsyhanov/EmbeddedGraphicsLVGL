@@ -411,8 +411,17 @@ static void ltdcLayerInit(LTDC_Layer_TypeDef *pLayer)
 	//2. configure the constant alpha and blending factors
 
 	//3. Configure layer position (Windowing)
-	uint32_t ahbp = (ltdc->BPCR >> LTDC_BPCR_AHBP_Pos)  & 0xFFFU;
-	uint32_t whstart = ahbp + 0 + 1;
+	uint32_t tmp = 0U;
+	uint32_t ahbp = (ltdc->BPCR >> LTDC_BPCR_AHBP_Pos) & 0xFFFU;
+
+	uint32_t whstart = ahbp + 1U;
+	uint32_t whstop = whstart + BSP_LCD_ACTIVE_WIDTH - 1U;
+
+	REG_SET_VAL(tmp, whstart, 0xFFFU, LTDC_LxWHPCR_WHSTPOS_Pos);
+	REG_SET_VAL(tmp, whstop, 0xFFFU, LTDC_LxWHPCR_WHSPPOS_Pos);
+
+	pLayer->WHPCR = tmp;
+
 
 	//4. Configure Frame buffer address
 
