@@ -412,17 +412,18 @@ static void ltdcLayerInit(LTDC_Layer_TypeDef *pLayer)
 
 	//3. Configure layer position (Windowing)
 	uint32_t tmp = 0U;
-	uint32_t ahbp = (ltdc->BPCR >> LTDC_BPCR_AHBP_Pos) & 0xFFFU;
-
-	uint32_t whstart = ahbp + 1U;
-	uint32_t whstop = whstart + BSP_LCD_ACTIVE_WIDTH - 1U;
-
+	uint32_t whstart = ((ltdc->BPCR & LTDC_BPCR_AHBP_Msk) >> LTDC_BPCR_AHBP_Pos) + 1U;
+	uint32_t whstop =  (ltdc->AWCR & LTDC_AWCR_AAW_Msk) >> LTDC_AWCR_AAW_Pos;
 	REG_SET_VAL(tmp, whstart, 0xFFFU, LTDC_LxWHPCR_WHSTPOS_Pos);
 	REG_SET_VAL(tmp, whstop, 0xFFFU, LTDC_LxWHPCR_WHSPPOS_Pos);
-
 	pLayer->WHPCR = tmp;
 
-
+	tmp = 0U;
+	uint32_t wvstart = (ltdc->BPCR & LTDC_BPCR_AVBP_Msk) + 1U;
+	uint32_t wvstop =  ltdc->AWCR & LTDC_AWCR_AAH_Msk;
+	REG_SET_VAL(tmp, wvstart, 0x7FFU, LTDC_LxWVPCR_WVSTPOS_Pos);
+	REG_SET_VAL(tmp, wvstop, 0x7FFU, LTDC_LxWVPCR_WVSPPOS_Pos);
+	pLayer->WVPCR = tmp;
 	//4. Configure Frame buffer address
 
 	//5. Configure the default color of the layer (optional)
