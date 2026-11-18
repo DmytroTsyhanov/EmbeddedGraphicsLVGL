@@ -1,5 +1,4 @@
 #include "bsp_lcd.h"
-#include "board.h"
 
 
 GPIO_TypeDef * const ltdcIoPorts[] = {

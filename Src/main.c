@@ -16,7 +16,6 @@
  ******************************************************************************
  */
 #include <stdint.h>
-#include "stm32f746xx.h"
 #include "reg_util.h"
 #include "bsp_lcd.h"
 
